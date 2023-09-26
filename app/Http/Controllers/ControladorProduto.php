@@ -14,10 +14,15 @@ class ControladorProduto extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function indexView()
+    {
+        return view('produtos.produtos');
+    }
+
+    public function indexJson()
     {
         $prods = Produto::all();
-        return view('produtos.produtos', compact('prods'));
+        return json_encode($prods);
     }
 
     /**
@@ -42,7 +47,7 @@ class ControladorProduto extends Controller
         $prod->save();
 
         $prods = Produto::all();
-        return view('produtos.produtos', compact('prods'));
+        return json_encode($prods);
     }
 
     /**
@@ -91,7 +96,5 @@ class ControladorProduto extends Controller
         if (isset($prod)) {
             $prod->delete();
         }
-        $prods = Produto::all();
-        return view('produtos.produtos', compact('prods'));
     }
 }

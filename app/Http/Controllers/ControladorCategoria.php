@@ -84,4 +84,10 @@ class ControladorCategoria extends Controller
         $cats = Categoria::all();
         return view('departamentos.departamentos', compact('cats'));
     }
+
+    public function indexJson()
+    {
+        $cats = Categoria::all();
+        return json_encode($cats);
+    }
 }

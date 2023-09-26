@@ -17,3 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/categorias', 'App\Http\Controllers\ControladorCategoria@indexJson');
+Route::get('/produtos', 'App\Http\Controllers\ControladorProduto@indexJson');
+Route::post('/produtos', 'App\Http\Controllers\ControladorProduto@store');
+Route::delete('/produtos/{id}', 'App\Http\Controllers\ControladorProduto@destroy');
