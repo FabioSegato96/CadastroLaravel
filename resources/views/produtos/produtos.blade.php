@@ -60,7 +60,7 @@
     </div>
 
     <!-- Modal Editar Produto -->
-    <div class="modal fade" id="editar_produto" tabindex="-1" role="dialog" aria-labelledby="editar_produtoLabel" aria-hidden="true">
+    <div class="modal fade" id="modal_editar_produto" tabindex="-1" role="dialog" aria-labelledby="editar_produtoLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
         <div class="modal-header">
@@ -72,10 +72,11 @@
         <!-- FORM -->
         <form class="form-horizontal" id="formEditarProduto">
             <div class="modal-body">
-                    <input type="text" name="nome" id="nome" class="form-control mb-1" placeholder="Produto">
-                    <select class="form-control" name="categoria_id" id="categoria_idEditar"></select>
-                    <input type="number" name="estoque" id="estoque" class="form-control mb-1" placeholder="Estoque">
-                    <input type="number" name="preco" id="preco" class="form-control mb-1" placeholder="Preço"> 
+                    <input type="hidden" name="id" id="idEditar">
+                    <input type="text" name="nome" id="nomeEditar" class="form-control mb-1" placeholder="Produto">
+                    <select class="form-control" name="categoria_idEditar" id="categoria_idEditar"></select>
+                    <input type="number" name="estoque" id="estoqueEditar" class="form-control mb-1" placeholder="Estoque">
+                    <input type="number" name="preco" id="precoEditar" class="form-control mb-1" placeholder="Preço"> 
             </div>
             <div class="modal-footer">
                 <button type="cancel" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
@@ -125,7 +126,7 @@
     }
 
     function montarLinha(p){
-        var linha = '<tr><td>' + p.id + '</td><td>' + p.nome + '</td><td>' + p.estoque + '</td><td>€' + p.preco + '</td><td><i class="fas fa-edit text-primary" data-toggle="modal" onclick="editarProduto('+ p.id +')" data-target="#editar_produto"></i> | <i class="fas fa-times text-danger p-1" onclick="remover('+ p.id +')"></i></td></tr>';
+        var linha = '<tr><td>' + p.id + '</td><td>' + p.nome + '</td><td>' + p.estoque + '</td><td>€' + p.preco + '</td><td><i class="fas fa-edit text-primary" data-toggle="modal" onclick="editar('+ p.id +')" data-target="#modal_editar_produto"></i> | <i class="fas fa-times text-danger p-1" onclick="remover('+ p.id +')"></i></td></tr>';
         return linha;
     }
 
@@ -160,6 +161,42 @@
                 });
     }
 
+    // Salvando Edicoes //
+
+    function salvarProduto(){
+        prod = {id: $('#idEditar').val(),
+                nome: $('#nomeEditar').val(),
+                categoria_id: $('#categoria_idEditar').val(),
+                estoque: $('#estoqueEditar').val(),
+                preco: $('#precoEditar').val()
+                };
+                $.ajax({
+                    type: "PUT",
+                    url: "/api/produtos/" + prod.id,
+                    context: this,
+                    data: prod,
+                    success: function (data){
+                        prod = JSON.parse(data);
+                        linhas = $('#produtos_lista>tr');
+                        e = linhas.filter( function(i, e){
+                            return (e.cells[0].textContent == prod.id);
+                        });
+                        if (e){
+                            e[0].cells[0].textContent = prod.id;
+                            e[0].cells[1].textContent = prod.nome;
+                            //e[0].cells[2].textContent = prod.categoria_id;
+                            e[0].cells[2].textContent = prod.estoque;
+                            e[0].cells[3].textContent = prod.preco;
+                        }
+                    },
+                    error: function (){
+        
+                    }
+                })  
+    }
+
+    // Removendo Produtos //
+
     function remover(id){
         $.ajax({
             type: "DELETE",
@@ -179,10 +216,28 @@
         })
     }
 
+    function editar(id) {
+        $.getJSON('/api/produtos/' + id, function(produto){
+            $('#idEditar').val(produto.id);
+            $('#nomeEditar').val(produto.nome);
+            $('#categoria_idEditar').val(produto.categoria_id);
+            $('#estoqueEditar').val(produto.estoque);
+            $('#precoEditar').val(produto.preco);
+        })
+    }
+
+    // Formularios //
+
     $('#formProduto').submit( function(event){
         event.preventDefault();
         criarProduto();
         $('#modal_inserir_produto').modal('hide');
+    })
+
+    $('#formEditarProduto').submit( function(event){
+        event.preventDefault();
+        salvarProduto();
+        $('#modal_editar_produto').modal('hide');
     })
     
     $(function(){
